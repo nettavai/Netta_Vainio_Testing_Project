@@ -1,0 +1,91 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+
+# Documentation    Testing GitLab project functionality including creation, update, deletion. Covers both valid and invalid scenarios for project operations.
+
+Pre Condition     User must be logged in and on the Projects dashboard page
+Post Condition    Close All Browsers
+Tags              Project, TS-3-Project
+
+#******************* Common Variables ********************
+
+*** Variables ***
+
+# Project creation test data
+
+ProjectsUrl             https://gitlab.com/projects
+Valid_Project_Name      First Project
+Duplicate_Project_Name  First Project
+New_Project_Name        Updated Project
+Template_Project_Name   Template Project
+Project_Description     This is a test project
+Empty                   ${EMPTY}
+
+
+
+#******************** Test Cases *************************
+
+*** Test Case ***
+
+# Positive Test Cases
+
+Create Blank Project
+    Navigate To Projects Page         ProjectsUrl
+    Click Create New Project
+    Input Project Name                Valid_Project_Name
+    Leave Template Unselected
+    Submit Project Form
+    Verify Page Should Contain        Project 'First Project' was successfully created.
+
+Create Template Project
+    Navigate To Projects Page         ProjectsUrl
+    Click Create New Project
+    Input Project Name                Template_Project_Name
+    Select Template                   NodeJS (or other template)
+    Submit Project Form
+    Verify Page Should Contain        Project 'Template Project' was successfully created.
+
+Update Name Of Template Project
+    Navigate To Project Settings      Template_Project_Name
+    Click Edit Project Name
+    Input New Name                    New_Project_Name
+    Save Changes
+    Verify Page Should Contain        The project was successfully updated.
+
+Delete Template Project
+    Navigate To Project Settings      New_Project_Name
+    Click Delete Project
+    Confirm Deletion
+    Verify Page Should Contain        Project was successfully deleted.
+
+Validate Message After Project Creation
+    Navigate To Projects Page         ProjectsUrl
+    Click Create New Project
+    Input Project Name                Valid_Project_Name
+    Submit Project Form
+    Verify Page Should Contain        Project 'First Project' was successfully created.
+
+# Negative Test Case
+
+Create Blank Project With Duplicate Name
+    Navigate To Projects Page         ProjectsUrl
+    Click Create New Project
+    Input Project Name                Duplicate_Project_Name
+    Submit Project Form
+    Verify Page Should Contain        Project name has already been taken
+
+Create Project With Special Characters In Name
+    Navigate To Projects Page         ProjectsUrl
+    Click Create New Project
+    Input Project Name                ###Invalid!@#
+    Submit Project Form
+    Verify Page Should Contain        Project name is invalid
+
+Update Project Name To Existing One
+    Navigate To Project Settings      Template_Project_Name
+    Click Edit Project Name
+    Input New Name                    Duplicate_Project_Name
+    Save Changes
+    Verify Page Should Contain        Project name has already been taken	

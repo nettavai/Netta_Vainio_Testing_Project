@@ -1,0 +1,89 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+
+Documentation    Issue Test scenario. Covers Create, Read, Update, and Delete operations for issues within a project.
+
+Pre Condition     User must be logged in and have an existing project created
+Post Condition    Close All Browsers
+Tags              Issue, TS-4-Issue
+
+#******************* Common Variables ********************
+
+
+*** Variables ***
+
+# Issue test data
+
+ProjectUrl             https://gitlab.com/your-namespace/first-project
+Issue_Title_1          First Issue
+Issue_Title_2          Second Issue
+Updated_Issue_Title    Updated Issue Title
+Duplicate_Issue_Title  Updated Issue Title
+Issue_Description      This is a sample issue for testing
+Empty                  ${EMPTY}
+
+#******************** Test Cases *************************
+
+*** Test Case ***
+
+# Positive Test Cases
+
+Create Issue
+    Navigate To Project Page         ProjectUrl
+    Click On Issues Tab
+    Click New Issue
+    Input Issue Title                Issue_Title_1
+    Input Issue Description          Issue_Description
+    Submit Issue Form
+    Verify Page Should Contain       Issue was successfully created
+
+Update Name Of Issue
+    Navigate To Issue                Issue_Title_1
+    Click Edit Issue Title
+    Input New Title                  Updated_Issue_Title
+    Save Changes
+    Verify Page Should Contain       Successfully updated
+
+Create Second Issue With Previous Updated Name
+    Navigate To Project Page         ProjectUrl
+    Click On Issues Tab
+    Click New Issue
+    Input Issue Title                Duplicate_Issue_Title
+    Input Issue Description          This is a second issue
+    Submit Issue Form
+    Verify Page Should Contain       Issue was successfully created
+
+Delete First Issue
+    Navigate To Issue                Updated_Issue_Title
+    Click Delete Issue
+    Confirm Deletion
+    Verify Page Should Contain       The issue was successfully deleted
+
+# Negative Test Cases
+
+Create Issue With Empty Title
+    Navigate To Project Page         ProjectUrl
+    Click On Issues Tab
+    Click New Issue
+    Input Issue Title                Empty
+    Input Issue Description          Issue_Description
+    Submit Issue Form
+    Verify Page Should Contain       This field is required
+
+Create Issue With Duplicate Title (If Title Uniqueness is Enforced)
+    Navigate To Project Page         ProjectUrl
+    Click On Issues Tab
+    Click New Issue
+    Input Issue Title                Updated_Issue_Title
+    Input Issue Description          Duplicate issue test
+    Submit Issue Form
+    Verify Page Should Contain       Title has already been taken (if applicable)
+
+Edit Issue Title To Empty
+    Navigate To Issue                Issue_Title_2
+    Click Edit Issue Title
+    Input New Title                  Empty
+    Save Changes
+    Verify Page Should Contain       This field is required	

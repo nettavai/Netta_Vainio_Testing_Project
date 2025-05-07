@@ -1,0 +1,91 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+
+# Documentation    Testing the user registration functionality. Includes valid and invalid registration scenarios with field validations and expected behavior.
+
+Pre Condition    Open Browser
+Post Condition   Close All Browsers
+Tags             Registration, TS-2-Registration
+
+#******************* Common Variables ********************
+
+*** Variables ***
+
+# Test Data for registration
+
+LoginUrl          https://gitlab.com/users/sign_up
+Valid_Email       nev00010@laurea.fi
+Valid_Username    netta_testuser
+Valid_Password    StrongPassw0rd!
+Duplicate_Email   nev00010@laurea.fi
+Duplicate_Username netta_testuser
+Invalid_Email     not-an-email
+Empty             ${EMPTY}
+Weak_Password     12345
+
+
+#******************** Test Cases *************************
+
+*** Test Cases ***
+
+# Positive Test Case
+
+Register User With Valid Data
+    Navigate To Registration Page    LoginUrl
+    Input Email                      Valid_Email
+    Input Username                   Valid_Username
+    Input Password                   Valid_Password
+    Check Recaptcha
+    Submit Registration Form
+    Verify Registration Success Page Should Be Visible
+
+
+# Negative Test Cases
+
+Register User With Duplicate Username
+    Navigate To Registration Page    LoginUrl
+    Input Email                      newuser@example.com
+    Input Username                   Duplicate_Username
+    Input Password                   Valid_Password
+    Check Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain       Username has already been taken
+
+Register User With Duplicate Email
+    Navigate To Registration Page    LoginUrl
+    Input Email                      Duplicate_Email
+    Input Username                   new_unique_user
+    Input Password                   Valid_Password
+    Check Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain       Email has already been taken
+
+Register User With Empty Password
+    Navigate To Registration Page    LoginUrl
+    Input Email                      newuser@example.com
+    Input Username                   new_user
+    Input Password                   Empty
+    Check Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain       This field is required
+
+Register User With Invalid Email
+    Navigate To Registration Page    LoginUrl
+    Input Email                      Invalid_Email
+    Input Username                   new_user_invalid
+    Input Password                   Valid_Password
+    Check Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain       Email is invalid
+
+Register User Without Completing Recaptcha
+    Navigate To Registration Page    LoginUrl
+    Input Email                      testuser123@example.com
+    Input Username                   testuser123
+    Input Password                   Valid_Password
+    # Do NOT Check Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain       Please verify you are not a robot
+
